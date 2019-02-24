@@ -93,10 +93,14 @@ public class GameLogic {
 	}
 	
 	public static Item selectItem(Collection<Item> items) {
-		if(currentAdventure.getLives() < 7) {
+		if (currentAdventure.getLives() < 7) {
 			Item healingPotion = getHealingPotion(items);
 			if (healingPotion != null && healingPotion.getCost() <= currentAdventure.getGold()) {
 				return healingPotion;
+			}
+		} else {
+			if (currentAdventure.getGold() < 100) {
+				return null;
 			}
 		}
 		
