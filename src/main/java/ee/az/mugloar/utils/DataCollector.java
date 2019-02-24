@@ -32,11 +32,18 @@ public class DataCollector {
 
 		long start = System.currentTimeMillis();
 		for (int i=0; i<gamesToRun; i++) {
-			logger.info(String.format("Running game %d of %d", i, gamesToRun));
+			logger.info(String.format("Running game %d of %d", i+1, gamesToRun));
 			Mugloar.runGame();
+			if (i>0 && (i+1)%10 == 0) {
+				showStats(start, System.currentTimeMillis());
+			}
 		}
 		long end = System.currentTimeMillis();
-
+		
+		showStats(start, end);
+	}
+	
+	private static void showStats(long start, long end) {
 		logger.info("***********************************************************");	
 		logger.info("Data collected");
 		long totalTime = (end-start)/1000;
@@ -67,7 +74,9 @@ public class DataCollector {
 		logger.info("Levels and scores:");
 		logger.info(String.format("Level: %d < %d < %d", score.getMinLevel(), score.getAverageLevel(), score.getMaxLevel()));
 		logger.info(String.format("Score: %d < %d < %d", score.getMinScore(), score.getAverageScore(), score.getMaxScore()));
-		logger.info("Games with score below 1000 " + score.getGamesBelow1k());
+		int rate = score.getGamesBelow1k() * 100 / score.getTotalGames();
+		logger.info(String.format("Games with score below 1000: %d / %d (%d%%)", score.getGamesBelow1k(), score.getTotalGames(), rate));
+		logger.info("***********************************************************");	
 	}
 	
 	public static void collectEncryptedMessages(Message message) {
@@ -91,7 +100,7 @@ public class DataCollector {
 		}
 		risk.addTotal();
 		
-		String namePrefix = message.getMessage().substring(0, message.getMessage().indexOf(' '));
+		String namePrefix = GeneralUtils.getFirstWord(message.getMessage());
 		logger.debug("Adventure name prefix " + namePrefix);
 		ByName byName = adventuresByName.get(namePrefix);
 		if (byName == null) {
