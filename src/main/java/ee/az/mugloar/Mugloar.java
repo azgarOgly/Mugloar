@@ -24,7 +24,11 @@ public class Mugloar {
 	private static Logger logger = Logger.getLogger(Mugloar.class);
 
 	public static void main(String[] args) throws Exception {
-		runGame();
+		try {
+			runGame();
+		} catch (Exception e) {
+			logger.error("Game failed.", e);
+		}
 	}
 
 	public static void runGame() {

@@ -9,6 +9,7 @@ import java.util.List;
 import ee.az.mugloar.api.model.Adventure;
 import ee.az.mugloar.api.model.Item;
 import ee.az.mugloar.api.model.Message;
+import ee.az.mugloar.utils.GeneralUtils;
 
 public class GameLogic {
 
@@ -27,7 +28,8 @@ public class GameLogic {
 		
 		for (Message m : options) {
 			RiskLevel rl = RiskLevel.getRiskLevel(m.getProbability());
-			if (rl.isAcceptable()) {
+			boolean honest = !"Steal".equalsIgnoreCase(GeneralUtils.getFirstWord(m.getMessage()));
+			if (rl.isAcceptable() && honest) {
 				acceptables.add(m);
 			}
 		}
