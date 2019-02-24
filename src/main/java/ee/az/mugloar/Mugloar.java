@@ -63,21 +63,25 @@ public class Mugloar {
 				break;
 			}
 
-			reputation = MugloarApi.getReputation(game.getGameId());
-			// logger.info(String.format("Reputation with people %d, state %d, underworld %d", reputation.getReputationWithPeople(), reputation.getReputationWithState(), reputation.getReputationWithUnderworld()));
-			logger.debug("Current reputation " + reputation);
-			
-			Collection<Item> shoppingOffers = MugloarApi.getShopOffers(game.getGameId());
-			for (Item i : shoppingOffers) {
-				logger.debug("Item for sell " + i);
+			if (GameLogic.investigateReputation()) {
+				reputation = MugloarApi.getReputation(game.getGameId());
+				logger.info(String.format("Reputation with people %d, state %d, underworld %d", reputation.getReputationWithPeople(), reputation.getReputationWithState(), reputation.getReputationWithUnderworld()));
+				logger.debug("Current reputation " + reputation);
 			}
-
-			Item itemToBuy = GameLogic.selectItem(shoppingOffers);
-			if (itemToBuy != null) {
-				shoppingResponse = MugloarApi.buyItem(game.getGameId(), itemToBuy.getId());
-				String shoppingSuccess = Boolean.parseBoolean(shoppingResponse.getShoppingSuccess()) ? "successful" : "failure";
-				logger.info(String.format("Bying %s for %d of %d gold, lives %d, level %d, %s", itemToBuy.getName(), itemToBuy.getCost(), adventureResult.getGold(), shoppingResponse.getLives(), shoppingResponse.getLevel(), shoppingSuccess));
-				logger.debug("Buying " + itemToBuy.getId() + " response " + shoppingResponse);
+			
+			if (GameLogic.goShopping()) {
+				Collection<Item> shoppingOffers = MugloarApi.getShopOffers(game.getGameId());
+				for (Item i : shoppingOffers) {
+					logger.debug("Item for sell " + i);
+				}
+	
+				Item itemToBuy = GameLogic.selectItem(shoppingOffers);
+				if (itemToBuy != null) {
+					shoppingResponse = MugloarApi.buyItem(game.getGameId(), itemToBuy.getId());
+					String shoppingSuccess = Boolean.parseBoolean(shoppingResponse.getShoppingSuccess()) ? "successful" : "failure";
+					logger.info(String.format("Bying %s for %d of %d gold, lives %d, level %d, %s", itemToBuy.getName(), itemToBuy.getCost(), adventureResult.getGold(), shoppingResponse.getLives(), shoppingResponse.getLevel(), shoppingSuccess));
+					logger.debug("Buying " + itemToBuy.getId() + " response " + shoppingResponse);
+				}
 			}
 		}
 		

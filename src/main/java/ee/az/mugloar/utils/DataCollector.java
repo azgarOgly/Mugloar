@@ -17,14 +17,22 @@ public class DataCollector {
 	private static Set<String> collectedProbabilities = new HashSet<>();
 	private static Set<Message> encryptedMessages = new HashSet<>();
 	private static Map<String, Risk> risks = new HashMap<>();
+	private static Map<String, ByName> adventuresByName = new HashMap<>();
 	private static Score score = new Score();
 
 	public static void main(String[] args) throws Exception {
+		int gamesToRun = 30;
+		if (args.length > 0) {
+			try {
+				gamesToRun = Integer.valueOf(args[0]);
+			} catch (NumberFormatException ignore) {}
+		}
 		
 		logger.info("Starting data collection");
 
 		long start = System.currentTimeMillis();
-		for (int i=0; i<100; i++) {
+		for (int i=0; i<gamesToRun; i++) {
+			logger.info(String.format("Running game %d of %d", i, gamesToRun));
 			Mugloar.runGame();
 		}
 		long end = System.currentTimeMillis();
@@ -50,6 +58,11 @@ public class DataCollector {
 			Risk risk = risks.get(riskName);
 			int rate = risk.getSuccess() * 100 / risk.getTotal();
 			logger.info(String.format("Risk '%s' success %d/%d (%d%%)", riskName, risk.getSuccess(), risk.getTotal(), rate));
+		}
+		logger.info("Adventure statistics by first word:");
+		for (ByName bn : adventuresByName.values()) {
+			int rate = bn.getFailures() * 100 / bn.getTotal();
+			logger.info(String.format("Prefix '%s' failure %d/%d (%d%%)", bn.getNamePrefix(), bn.getFailures(), bn.getTotal(), rate));
 		}
 		logger.info("Levels and scores:");
 		logger.info(String.format("Level: %d < %d < %d", score.getMinLevel(), score.getAverageLevel(), score.getMaxLevel()));
@@ -77,6 +90,15 @@ public class DataCollector {
 			risk.addSuccess();
 		}
 		risk.addTotal();
+		
+		String namePrefix = message.getMessage().substring(0, message.getMessage().indexOf(' '));
+		logger.debug("Adventure name prefix " + namePrefix);
+		ByName byName = adventuresByName.get(namePrefix);
+		if (byName == null) {
+			byName = new ByName(namePrefix);
+			adventuresByName.put(namePrefix, byName);
+		}
+		byName.addGame(!adventure.isSuccess());
 	}
 	
 	public static void addGame(int score, int level) {
@@ -98,6 +120,31 @@ public class DataCollector {
 		}
 		public int getSuccess() {
 			return success;
+		}
+	}
+	
+	private static class ByName {
+		private  final String namePrefix;
+		private int total;
+		private int failures;
+		
+		public ByName(String namePrefix) {
+			this.namePrefix = namePrefix;
+		}
+		public void addGame(boolean failure) {
+			total++;
+			if(failure) {
+				failures++;
+			}
+		}
+		public String getNamePrefix() {
+			return namePrefix;
+		}
+		public int getTotal() {
+			return total;
+		}
+		public int getFailures() {
+			return failures;
 		}
 	}
 	

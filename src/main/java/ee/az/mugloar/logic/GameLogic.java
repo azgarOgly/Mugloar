@@ -12,6 +12,7 @@ import ee.az.mugloar.api.model.Message;
 
 public class GameLogic {
 
+	private static final int DESIRED_LIVES = 7; // How much lives is considered worth holding
 	private static Adventure currentAdventure;
 	
 	public static Message selectAdventure(Collection<Message> messages) {
@@ -92,8 +93,21 @@ public class GameLogic {
 		}
 	}
 	
+	public static boolean goShopping() {
+		if (currentAdventure.getGold() < 50) {
+			return false;
+		}
+		if (currentAdventure.getLives() < DESIRED_LIVES) {
+			return true;
+		}
+		if (currentAdventure.getGold() < 100) {
+			return false;
+		}
+		return true;
+	}	
+	
 	public static Item selectItem(Collection<Item> items) {
-		if (currentAdventure.getLives() < 7) {
+		if (currentAdventure.getLives() < DESIRED_LIVES) {
 			Item healingPotion = getHealingPotion(items);
 			if (healingPotion != null && healingPotion.getCost() <= currentAdventure.getGold()) {
 				return healingPotion;
@@ -103,18 +117,15 @@ public class GameLogic {
 				return null;
 			}
 		}
-		
 		List<Item> affordables = new ArrayList<>();
 		for (Item i : items) {
 			if (i != null && i.getCost() <= currentAdventure.getGold()) {
 				affordables.add(i);
 			}
 		}
-		
 		if (affordables.isEmpty()) {
 			return null;
 		}
-		
 		List<Item> options = new ArrayList<>();
 		Collections.sort(affordables, new ItemByPriceComparator());
 		int price = affordables.get(0).getCost();
@@ -123,7 +134,6 @@ public class GameLogic {
 				options.add(i); // items of equally high price
 			}
 		}
-		
 		int index = (int)(Math.random() * options.size());
 		return options.get(index);
 	}
@@ -156,5 +166,9 @@ public class GameLogic {
 	}
 	public static void setCurrentAdventure(Adventure currentAdventure) {
 		GameLogic.currentAdventure = currentAdventure;
+	}
+
+	public static boolean investigateReputation() {
+		return false;
 	}
 }
