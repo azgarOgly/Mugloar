@@ -43,7 +43,7 @@ public class DataCollector {
 				mugloar.setDataCollector(this);
 				mugloar.runGame();
 			} catch (Exception e) {
-				logger.error("Failed to run game." + e);
+				logger.error("Failed to run game.", e);
 			}
 			
 			if (i%10 == 0 && !(i == gamesToRun)) {

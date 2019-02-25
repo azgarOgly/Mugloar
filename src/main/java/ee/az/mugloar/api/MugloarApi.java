@@ -98,7 +98,7 @@ public class MugloarApi {
 			String json = HttpUtils.post(String.format(BUY, gameId, itemId), params);
 			return SerializationUtils.getShoppingResponse(json);
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to get shopping items", e);
+			throw new RuntimeException("Failed to buy item", e);
 		} 
 	}
 }
