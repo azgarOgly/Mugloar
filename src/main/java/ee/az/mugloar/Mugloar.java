@@ -26,13 +26,16 @@ public class Mugloar {
 
 	public static void main(String[] args) throws Exception {
 		try {
-			runGame();
+			new Mugloar().runGame();
 		} catch (Exception e) {
 			logger.error("Game failed.", e);
 		}
 	}
 
-	public static void runGame() {
+	/**
+	 * Main game cycle
+	 */
+	public void runGame() {
 		
 		String separator = SEPARATOR_L; 
 		
@@ -40,13 +43,16 @@ public class Mugloar {
 		logger.info("Starting game");
 		logger.info("");
 
+		GameLogic gameLogic = new GameLogic();
+		DataCollector dataCollector = new DataCollector();
+		
 		Game game = MugloarApi.startGame();
 		logger.debug(String.format("Started the game with id %s", game.getGameId()));
 		logger.debug("Game started " + game);
 
 		Reputation reputation = null;
-		Adventure adventureResult;
 		ShoppingResponse shoppingResponse = null;
+		Adventure adventureResult;
 
 		while (true) {
 			logger.info(separator);
@@ -54,37 +60,38 @@ public class Mugloar {
 			Collection<Message> messages = MugloarApi.getMessages(game.getGameId());
 			for (Message m : messages) {
 				logger.debug("Message " + m);
+				dataCollector.collectMessages(m);
 			}
 
-			Message adventureToSolve = GameLogic.selectAdventure(messages);
+			Message adventureToSolve = gameLogic.selectAdventure(messages);
 			logger.info(String.format("'%s', %sg, '%s'", adventureToSolve.getMessage(), adventureToSolve.getReward(), adventureToSolve.getProbability()));
 			logger.debug(String.format("Going to adventure '%s', for %s gold, risk level '%s'", adventureToSolve.getMessage(), adventureToSolve.getReward(), adventureToSolve.getProbability()));
 			
 			adventureResult = MugloarApi.solveAdventure(game.getGameId(), adventureToSolve.getAdId());
-			GameLogic.setCurrentAdventure(adventureResult);
-			DataCollector.collectAdventures(adventureToSolve, adventureResult);
+			gameLogic.setCurrentAdventure(adventureResult);
+			dataCollector.collectAdventures(adventureToSolve, adventureResult);
 
 			logger.info(String.format("Adventure is %s, lives remaining %d, balance %d gold, score %d", adventureResult.isSuccess() ? "sucess" : "failure", adventureResult.getLives(), adventureResult.getGold(), adventureResult.getScore()));
 			logger.debug("Adventure result " + adventureResult);
 			
 			if (adventureResult.getLives() == 0) {
-				DataCollector.addGame(adventureResult.getScore(), shoppingResponse != null ? shoppingResponse.getLevel() : 0);
+				dataCollector.addGame(adventureResult.getScore(), shoppingResponse != null ? shoppingResponse.getLevel() : 0);
 				break;
 			}
 
-			if (GameLogic.investigateReputation()) {
+			if (gameLogic.investigateReputation()) {
 				reputation = MugloarApi.getReputation(game.getGameId());
 				logger.info(String.format("Reputation with people %d, state %d, underworld %d", reputation.getReputationWithPeople(), reputation.getReputationWithState(), reputation.getReputationWithUnderworld()));
 				logger.debug("Current reputation " + reputation);
 			}
 			
-			if (GameLogic.goShopping()) {
+			if (gameLogic.goShopping()) {
 				Collection<Item> shoppingOffers = MugloarApi.getShopOffers(game.getGameId());
 				for (Item i : shoppingOffers) {
 					logger.debug("Item for sell " + i);
 				}
 	
-				Item itemToBuy = GameLogic.selectItem(shoppingOffers);
+				Item itemToBuy = gameLogic.selectItem(shoppingOffers);
 				if (itemToBuy != null) {
 					shoppingResponse = MugloarApi.buyItem(game.getGameId(), itemToBuy.getId());
 					String shoppingSuccess = Boolean.parseBoolean(shoppingResponse.getShoppingSuccess()) ? "successful" : "failure";

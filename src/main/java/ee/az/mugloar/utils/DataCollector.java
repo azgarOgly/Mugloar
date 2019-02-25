@@ -14,11 +14,11 @@ import ee.az.mugloar.api.model.Message;
 public class DataCollector {
 
 	private static Logger logger = Logger.getLogger(DataCollector.class);
-	private static Set<String> collectedProbabilities = new HashSet<>();
-	private static Set<Message> encryptedMessages = new HashSet<>();
-	private static Map<String, Risk> risks = new HashMap<>();
-	private static Map<String, ByName> adventuresByName = new HashMap<>();
-	private static Score score = new Score();
+	private Set<String> collectedProbabilities = new HashSet<>();
+	private Set<Message> encryptedMessages = new HashSet<>();
+	private Map<String, Risk> risks = new HashMap<>();
+	private Map<String, ByName> adventuresByName = new HashMap<>();
+	private Score score = new Score();
 
 	public static void main(String[] args) throws Exception {
 		int gamesToRun = 30;
@@ -27,13 +27,17 @@ public class DataCollector {
 				gamesToRun = Integer.valueOf(args[0]);
 			} catch (NumberFormatException ignore) {}
 		}
+		new DataCollector().runDataCollection(gamesToRun);
+	}
+
+	private void runDataCollection(int gamesToRun) {
 		
 		logger.info("Starting data collection");
 
 		long start = System.currentTimeMillis();
 		for (int i=0; i<gamesToRun; i++) {
 			logger.info(String.format("Running game %d of %d", i+1, gamesToRun));
-			Mugloar.runGame();
+			new Mugloar().runGame();
 			if (i>0 && (i+1)%10 == 0 && !(i == gamesToRun-1)) {
 				showStats(start, System.currentTimeMillis());
 			}
@@ -43,7 +47,7 @@ public class DataCollector {
 		showStats(start, end);
 	}
 	
-	private static void showStats(long start, long end) {
+	private void showStats(long start, long end) {
 		logger.info("***********************************************************");	
 		logger.info("Data collected");
 		long totalTime = (end-start)/1000;
@@ -79,15 +83,17 @@ public class DataCollector {
 		logger.info("***********************************************************");	
 	}
 	
-	public static void collectEncryptedMessages(Message message) {
-		encryptedMessages.add(message);
+	public void collectMessages(Message message) {
+		if (message.getEncrypted() != null) {
+			encryptedMessages.add(message);
+		}
 	}
 	
-	public static void collectProbability(String probability) {
+	public void collectProbability(String probability) {
 		collectedProbabilities.add(probability);
 	}
 	
-	public static void collectAdventures(Message message, Adventure adventure) {
+	public void collectAdventures(Message message, Adventure adventure) {
 		String probability = message.getProbability();
 		collectProbability(probability);
 		Risk risk = risks.get(probability);
@@ -110,8 +116,8 @@ public class DataCollector {
 		byName.addGame(!adventure.isSuccess());
 	}
 	
-	public static void addGame(int score, int level) {
-		DataCollector.score.addGame(score, level);
+	public void addGame(int score, int level) {
+		this.score.addGame(score, level);
 	}
 	
 	private static class Risk {

@@ -14,9 +14,9 @@ import ee.az.mugloar.utils.GeneralUtils;
 public class GameLogic {
 
 	private static final int DESIRED_LIVES = 5; // How many lives is considered worth holding
-	private static Adventure currentAdventure;
+	private Adventure currentAdventure;
 	
-	public static Message selectAdventure(Collection<Message> messages) {
+	public Message selectAdventure(Collection<Message> messages) {
 		if (messages == null || messages.isEmpty()) {
 			throw new RuntimeException("Cannot make best choisce of empty list of options");
 		}
@@ -95,7 +95,7 @@ public class GameLogic {
 		}
 	}
 	
-	public static boolean goShopping() {
+	public boolean goShopping() {
 		if (currentAdventure.getGold() < 50) {
 			return false;
 		}
@@ -108,7 +108,7 @@ public class GameLogic {
 		return true;
 	}	
 	
-	public static Item selectItem(Collection<Item> items) {
+	public Item selectItem(Collection<Item> items) {
 		if (currentAdventure.getLives() < DESIRED_LIVES) {
 			Item healingPotion = getHealingPotion(items);
 			if (healingPotion != null && healingPotion.getCost() <= currentAdventure.getGold()) {
@@ -154,7 +154,7 @@ public class GameLogic {
 		}
 	}
 	
-	private static Item getHealingPotion(Collection<Item> items) {
+	private Item getHealingPotion(Collection<Item> items) {
 		for (Item i : items) {
 			if ("hpot".equals(i.getId())) {
 				return i;
@@ -163,14 +163,14 @@ public class GameLogic {
 		return null;
 	}
 	
-	public static Adventure getCurrentAdventure() {
+	public Adventure getCurrentAdventure() {
 		return currentAdventure;
 	}
-	public static void setCurrentAdventure(Adventure currentAdventure) {
-		GameLogic.currentAdventure = currentAdventure;
+	public void setCurrentAdventure(Adventure currentAdventure) {
+		this.currentAdventure = currentAdventure;
 	}
 
-	public static boolean investigateReputation() {
+	public boolean investigateReputation() {
 		return false;
 	}
 }

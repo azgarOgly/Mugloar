@@ -19,7 +19,6 @@ public class DecryptionUtils {
 		
 		for (Message m : messages) {
 			if (m.getEncrypted() != null) {
-				DataCollector.collectEncryptedMessages(m);
 				if ("1".contentEquals(m.getEncrypted())) {
 					result.add(decodeBase64(m));
 				} else if ("2".contentEquals(m.getEncrypted())) {

@@ -8,7 +8,7 @@ public class Message {
 	private String reward; // Reward in gold which is granted for successfully solving the game.
 	private int expiresIn; // The amount in turns in which the message will become unavailable for solving.
 	private String probability; // XXX not in api documentation
-	private String encrypted; // XXX undocumented
+	private String encrypted; // XXX not in api documentation
 	
 	public String getAdId() {
 		return adId;
