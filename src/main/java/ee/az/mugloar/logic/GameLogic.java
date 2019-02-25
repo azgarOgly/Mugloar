@@ -13,7 +13,7 @@ import ee.az.mugloar.utils.GeneralUtils;
 
 public class GameLogic {
 
-	private static final int DESIRED_LIVES = 7; // How much lives is considered worth holding
+	private static final int DESIRED_LIVES = 5; // How many lives is considered worth holding
 	private static Adventure currentAdventure;
 	
 	public static Message selectAdventure(Collection<Message> messages) {

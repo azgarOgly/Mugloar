@@ -34,7 +34,7 @@ public class DataCollector {
 		for (int i=0; i<gamesToRun; i++) {
 			logger.info(String.format("Running game %d of %d", i+1, gamesToRun));
 			Mugloar.runGame();
-			if (i>0 && (i+1)%10 == 0) {
+			if (i>0 && (i+1)%10 == 0 && !(i == gamesToRun-1)) {
 				showStats(start, System.currentTimeMillis());
 			}
 		}
