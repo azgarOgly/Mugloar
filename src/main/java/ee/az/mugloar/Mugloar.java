@@ -20,7 +20,8 @@ import ee.az.mugloar.utils.DataCollector;
  */
 public class Mugloar {
 
-	private final static String SEPARATOR = "********************************************************************";
+	private final static String SEPARATOR_L = "=====================================================================";
+	private final static String SEPARATOR_H = "*********************************************************************";
 	private static Logger logger = Logger.getLogger(Mugloar.class);
 
 	public static void main(String[] args) throws Exception {
@@ -33,8 +34,11 @@ public class Mugloar {
 
 	public static void runGame() {
 		
-		logger.info(SEPARATOR);
+		String separator = SEPARATOR_L; 
+		
+		logger.info(separator);
 		logger.info("Starting game");
+		logger.info("");
 
 		Game game = MugloarApi.startGame();
 		logger.debug(String.format("Started the game with id %s", game.getGameId()));
@@ -45,7 +49,7 @@ public class Mugloar {
 		ShoppingResponse shoppingResponse = null;
 
 		while (true) {
-			logger.info(SEPARATOR);
+			logger.info(separator);
 			
 			Collection<Message> messages = MugloarApi.getMessages(game.getGameId());
 			for (Message m : messages) {
@@ -53,7 +57,8 @@ public class Mugloar {
 			}
 
 			Message adventureToSolve = GameLogic.selectAdventure(messages);
-			logger.info(String.format("Going to adventure '%s', for %s gold, risk level '%s'", adventureToSolve.getMessage(), adventureToSolve.getReward(), adventureToSolve.getProbability()));
+			logger.info(String.format("'%s', %sg, '%s'", adventureToSolve.getMessage(), adventureToSolve.getReward(), adventureToSolve.getProbability()));
+			logger.debug(String.format("Going to adventure '%s', for %s gold, risk level '%s'", adventureToSolve.getMessage(), adventureToSolve.getReward(), adventureToSolve.getProbability()));
 			
 			adventureResult = MugloarApi.solveAdventure(game.getGameId(), adventureToSolve.getAdId());
 			GameLogic.setCurrentAdventure(adventureResult);
@@ -87,9 +92,13 @@ public class Mugloar {
 					logger.debug("Buying " + itemToBuy.getId() + " response " + shoppingResponse);
 				}
 			}
+			
+			if (adventureResult.getScore() >= 1000) {
+				separator = SEPARATOR_H;
+			}
 		}
 		
-		logger.info(SEPARATOR);
+		logger.info(separator);
 		logger.info("Game Over.");
 
 		logger.info("Score: " + adventureResult.getScore());
@@ -98,6 +107,6 @@ public class Mugloar {
 		if (reputation != null) {
 			logger.debug("Reputation " + reputation);
 		}
-		logger.info(SEPARATOR);
+		logger.info(separator);
 	}
 }
