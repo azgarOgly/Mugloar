@@ -8,7 +8,7 @@ public enum RiskLevel {
 	HMMM("Hmmm....", 65, true),
 	GAMBLE("Gamble", 50, false),
 	RISKY("Risky", 40, false),
-	DETRIMENTAL("Rather detrimental", 30, true),
+	DETRIMENTAL("Rather detrimental", 30, false),
 	FIRE("Playing with fire", 20, false), 
 	SUICIDE("Suicide mission", 10, false),
 	IMPOSSIBLE("Impossible", 5, false),
