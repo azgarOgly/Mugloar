@@ -35,10 +35,18 @@ public class DataCollector {
 		logger.info("Starting data collection");
 
 		long start = System.currentTimeMillis();
-		for (int i=0; i<gamesToRun; i++) {
-			logger.info(String.format("Running game %d of %d", i+1, gamesToRun));
-			new Mugloar().runGame();
-			if (i>0 && (i+1)%10 == 0 && !(i == gamesToRun-1)) {
+		for (int i=1; i<=gamesToRun; i++) {
+			logger.info(String.format("Running game %d of %d", i, gamesToRun));
+			
+			try {
+				Mugloar mugloar = new Mugloar();
+				mugloar.setDataCollector(this);
+				mugloar.runGame();
+			} catch (Exception e) {
+				logger.error("Failed to run game." + e);
+			}
+			
+			if (i%10 == 0 && !(i == gamesToRun)) {
 				showStats(start, System.currentTimeMillis());
 			}
 		}
@@ -48,10 +56,15 @@ public class DataCollector {
 	}
 	
 	private void showStats(long start, long end) {
-		logger.info("***********************************************************");	
+		logger.info("#####################################################################");	
 		logger.info("Data collected");
 		long totalTime = (end-start)/1000;
 		int totalGames = score.getTotalGames();
+		if (totalGames == 0) {
+			logger.info("No data collected");
+			return;
+		}
+		
 		logger.info(String.format("%d games played in %d seconds, %d seconds average", totalGames, totalTime, totalTime/totalGames));
 
 		/*
@@ -80,7 +93,7 @@ public class DataCollector {
 		logger.info(String.format("Score: %d < %d < %d", score.getMinScore(), score.getAverageScore(), score.getMaxScore()));
 		int rate = score.getGamesBelow1k() * 100 / score.getTotalGames();
 		logger.info(String.format("Games with score below 1000: %d / %d (%d%%)", score.getGamesBelow1k(), score.getTotalGames(), rate));
-		logger.info("***********************************************************");	
+		logger.info("#####################################################################");	
 	}
 	
 	public void collectMessages(Message message) {

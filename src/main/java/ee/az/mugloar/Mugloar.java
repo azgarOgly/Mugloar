@@ -23,6 +23,7 @@ public class Mugloar {
 	private final static String SEPARATOR_L = "=====================================================================";
 	private final static String SEPARATOR_H = "*********************************************************************";
 	private static Logger logger = Logger.getLogger(Mugloar.class);
+	private DataCollector dataCollector;
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -44,7 +45,6 @@ public class Mugloar {
 		logger.info("");
 
 		GameLogic gameLogic = new GameLogic();
-		DataCollector dataCollector = new DataCollector();
 		
 		Game game = MugloarApi.startGame();
 		logger.debug(String.format("Started the game with id %s", game.getGameId()));
@@ -60,7 +60,7 @@ public class Mugloar {
 			Collection<Message> messages = MugloarApi.getMessages(game.getGameId());
 			for (Message m : messages) {
 				logger.debug("Message " + m);
-				dataCollector.collectMessages(m);
+				getDataCollector().collectMessages(m);
 			}
 
 			Message adventureToSolve = gameLogic.selectAdventure(messages);
@@ -69,13 +69,13 @@ public class Mugloar {
 			
 			adventureResult = MugloarApi.solveAdventure(game.getGameId(), adventureToSolve.getAdId());
 			gameLogic.setCurrentAdventure(adventureResult);
-			dataCollector.collectAdventures(adventureToSolve, adventureResult);
+			getDataCollector().collectAdventures(adventureToSolve, adventureResult);
 
 			logger.info(String.format("Adventure is %s, lives remaining %d, balance %d gold, score %d", adventureResult.isSuccess() ? "sucess" : "failure", adventureResult.getLives(), adventureResult.getGold(), adventureResult.getScore()));
 			logger.debug("Adventure result " + adventureResult);
 			
 			if (adventureResult.getLives() == 0) {
-				dataCollector.addGame(adventureResult.getScore(), shoppingResponse != null ? shoppingResponse.getLevel() : 0);
+				getDataCollector().addGame(adventureResult.getScore(), shoppingResponse != null ? shoppingResponse.getLevel() : 0);
 				break;
 			}
 
@@ -107,13 +107,26 @@ public class Mugloar {
 		
 		logger.info(separator);
 		logger.info("Game Over.");
-
 		logger.info("Score: " + adventureResult.getScore());
+
 		logger.debug("Last adventure resulted " + adventureResult);
+		if (adventureResult.getScore() < 1000) {
+			logger.debug("Failed game.");
+		}
 
 		if (reputation != null) {
 			logger.debug("Reputation " + reputation);
 		}
 		logger.info(separator);
+	}
+
+	private DataCollector getDataCollector() {
+		if (dataCollector == null) {
+			dataCollector = new DataCollector();
+		}
+		return dataCollector;
+	}
+	public void setDataCollector(DataCollector dataCollector) {
+		this.dataCollector = dataCollector;
 	}
 }
